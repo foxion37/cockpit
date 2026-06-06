@@ -37,19 +37,19 @@ const model: CockpitModel = {
 	stateSources: [
 		{
 			name: "start-work ledger",
-			path: ".omo/start-work/ledger.jsonl",
+			path: ".cockpit/start-work/ledger.jsonl",
 			status: "available",
 			summary: "2 event(s)",
 		},
 		{
 			name: "ulw-loop goals",
-			path: ".omo/ulw-loop/goals.json",
+			path: ".cockpit/ulw-loop/goals.json",
 			status: "available",
 			summary: "1 goal(s), 1/2 criterion pass",
 		},
 		{
 			name: "ulw-loop ledger",
-			path: ".omo/ulw-loop/ledger.jsonl",
+			path: ".cockpit/ulw-loop/ledger.jsonl",
 			status: "available",
 			summary: "1 event(s)",
 		},
@@ -89,16 +89,16 @@ describe("cockpit markdown renderers", () => {
 		expect(files["WORKPLAN.md"]).toContain("█");
 		expect(files["WORKPLAN.md"]).toContain("░");
 
-		const previous = process.env["OMO_COCKPIT_ASCII"];
-		process.env["OMO_COCKPIT_ASCII"] = "1";
+		const previous = process.env["COCKPIT_ASCII"];
+		process.env["COCKPIT_ASCII"] = "1";
 		try {
 			const asciiFiles = renderCockpitFiles(model);
 			expect(asciiFiles["WORKPLAN.md"]).toContain("#");
 			expect(asciiFiles["WORKPLAN.md"]).toContain("-");
 			expect(asciiFiles["WORKPLAN.md"]).not.toContain("█");
 		} finally {
-			if (previous === undefined) delete process.env["OMO_COCKPIT_ASCII"];
-			else process.env["OMO_COCKPIT_ASCII"] = previous;
+			if (previous === undefined) delete process.env["COCKPIT_ASCII"];
+			else process.env["COCKPIT_ASCII"] = previous;
 		}
 	});
 

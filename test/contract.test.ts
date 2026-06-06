@@ -16,10 +16,10 @@ describe("cockpit four-file contract", () => {
 
 	it("resolves cockpit paths under the repo root", () => {
 		const repoRoot = "/tmp/project";
-		expect(COCKPIT_DIR).toBe(".omo/cockpit");
-		expect(cockpitDir(repoRoot)).toBe(join(repoRoot, ".omo", "cockpit"));
+		expect(COCKPIT_DIR).toBe(".cockpit");
+		expect(cockpitDir(repoRoot)).toBe(join(repoRoot, ".cockpit"));
 		expect(cockpitFilePath(repoRoot, "STATUS_KR.md")).toBe(
-			join(repoRoot, ".omo", "cockpit", "STATUS_KR.md"),
+			join(repoRoot, ".cockpit", "STATUS_KR.md"),
 		);
 	});
 });

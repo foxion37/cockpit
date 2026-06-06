@@ -9,7 +9,7 @@ interface HookInput {
 }
 
 const SKILL_MARKER_PATTERN =
-	/(?:\[\$omo:|\$ulw-loop\b|\$start-work\b|\$cockpit\b|\/cavexplain\b)/u;
+	/(?:\[\$cockpit\b|\$ulw-loop\b|\$start-work\b|\$cockpit\b|\/cavexplain\b)/u;
 
 export async function runCockpitHook(input: unknown): Promise<string> {
 	const hookInput = parseHookInput(input);

@@ -18,8 +18,7 @@
 		"cockpit",
 		"markdown-dashboard",
 		"agent-workflow",
-		"progress-tracking",
-		"omo"
+		"progress-tracking"
 	],
 	"bin": {
 		"cockpit": "./dist/cli.js"

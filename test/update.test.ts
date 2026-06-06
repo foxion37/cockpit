@@ -8,21 +8,21 @@ import { updateCockpit } from "../src/update.js";
 describe("cockpit update", () => {
 	it("writes exactly the four primary cockpit markdown files", async () => {
 		const repo = await mkdtemp(join(tmpdir(), "cockpit-update-"));
-		await mkdir(join(repo, ".omo", "plans"), { recursive: true });
+		await mkdir(join(repo, ".cockpit", "plans"), { recursive: true });
 		await writeFile(
-			join(repo, ".omo", "plans", "demo.md"),
+			join(repo, ".cockpit", "plans", "demo.md"),
 			"## TODOs\n- [x] Batch 1\n- [ ] Batch 2\n",
 			"utf8",
 		);
 		await writeFile(
-			join(repo, ".omo", "boulder.json"),
+			join(repo, ".cockpit", "state.json"),
 			JSON.stringify({
 				schema_version: 2,
 				active_work_id: "w1",
 				works: {
 					w1: {
 						work_id: "w1",
-						active_plan: ".omo/plans/demo.md",
+						active_plan: ".cockpit/plans/demo.md",
 						plan_name: "demo",
 						status: "active",
 						session_ids: ["codex:qa"],
@@ -33,7 +33,7 @@ describe("cockpit update", () => {
 		);
 
 		const result = await updateCockpit(repo);
-		const files = (await readdir(join(repo, ".omo", "cockpit")))
+		const files = (await readdir(join(repo, ".cockpit")))
 			.filter((file) => file.endsWith(".md"))
 			.sort();
 

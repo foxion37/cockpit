@@ -1,4 +1,4 @@
-export const COCKPIT_DIR = ".omo/cockpit";
+export const COCKPIT_DIR = ".cockpit";
 
 export const COCKPIT_FILE_NAMES = [
 	"WORKPLAN.md",

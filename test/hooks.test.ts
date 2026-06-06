@@ -21,7 +21,7 @@ describe("cockpit hooks", () => {
 
 		expect(output).toBe("");
 		expect(
-			(await readdir(join(repo, ".omo", "cockpit")))
+			(await readdir(join(repo, ".cockpit")))
 				.filter((file) => file.endsWith(".md"))
 				.sort(),
 		).toEqual([
@@ -42,12 +42,10 @@ describe("cockpit hooks", () => {
 			cwd: repo,
 			model: "gpt-5.5",
 			permission_mode: "default",
-			prompt: "[$omo:ulw-loop] 진행",
+			prompt: "[$cockpit] 진행",
 		});
 
 		expect(output).toBe("");
-		expect(await readdir(join(repo, ".omo", "cockpit"))).toContain(
-			"STATUS_KR.md",
-		);
+		expect(await readdir(join(repo, ".cockpit"))).toContain("STATUS_KR.md");
 	});
 });

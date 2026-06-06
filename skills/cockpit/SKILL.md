@@ -11,7 +11,7 @@ Use this skill when the user asks for Cockpit, cockpit status, a slim work dashb
 
 ## Contract
 
-The primary Cockpit surface is exactly four Markdown files under `.omo/cockpit/`:
+The primary Cockpit surface is exactly four Markdown files under `.cockpit/`:
 
 - `WORKPLAN.md` - overall progress, active plan, phases, detailed batches, batch progress, current task, and blockers.
 - `ARCHITECTURE.md` - architecture diagram plus local graph-source status for CodeGraph, codebase-memory-mcp, and Understand-Anything.
@@ -22,7 +22,7 @@ Do not create extra primary Cockpit docs unless the user explicitly asks for a n
 
 ## Workflow
 
-1. Read existing durable state first: `.omo/boulder.json`, `.omo/plans/`, `.omo/start-work/`, and `.omo/ulw-loop/`.
+1. Read existing durable state first: `.cockpit/state.json`, `.cockpit/plans/`, `.cockpit/start-work/`, and `.cockpit/ulw-loop/`.
 2. Run the updater when current state should be refreshed:
    ```sh
    node "${PLUGIN_ROOT}/components/cockpit/dist/cli.js" cockpit update --repo-root "$PWD" --json
@@ -34,8 +34,8 @@ Do not create extra primary Cockpit docs unless the user explicitly asks for a n
 
 Cockpit hooks are best-effort:
 
-- `UserPromptSubmit` activates only for OMO/skill/cockpit prompts.
-- `Stop` and `SubagentStop` refresh `.omo/cockpit` after work completes.
+- `UserPromptSubmit` activates only for Cockpit or skill-related prompts.
+- `Stop` and `SubagentStop` refresh `.cockpit` after work completes.
 - Hook failures return empty output and must not block `start-work` continuation or other hook decisions.
 
 ## Guardrails

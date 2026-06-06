@@ -67,7 +67,7 @@ function renderArchitecture(model: CockpitModel): string {
 		"",
 		"```mermaid",
 		"flowchart LR",
-		"  State[Durable OMO state] --> Cockpit[.omo/cockpit renderer]",
+		"  State[Durable Cockpit state] --> Cockpit[.cockpit renderer]",
 		"  CodeGraph[codegraph] --> Cockpit",
 		"  CodebaseMemory[codebase-memory-mcp] --> Cockpit",
 		"  UnderstandAnything[understand-anything] --> Cockpit",
@@ -114,10 +114,10 @@ function renderGuardrails(model: CockpitModel): string {
 		"# Agent Guardrails",
 		"",
 		"## Primary Cockpit files",
-		...COCKPIT_FILE_NAMES.map((fileName) => `- .omo/cockpit/${fileName}`),
+		...COCKPIT_FILE_NAMES.map((fileName) => `- .cockpit/${fileName}`),
 		"",
 		"## Rules",
-		"- Treat existing .omo/ulw-loop, .omo/start-work, and .omo/plans state as machine truth.",
+		"- Treat existing .cockpit/ulw-loop, .cockpit/start-work, and .cockpit/plans state as machine truth.",
 		"- Do not create extra planning/status docs without explicit user approval.",
 		"- Do not delete or rewrite legacy Cockpit files automatically.",
 		"- Keep Korean user status in STATUS_KR.md, not in this guardrail file.",
@@ -144,8 +144,8 @@ function renderProgressBar(percent: number, barWidth = 20): string {
 	const safePercent = normalizePercent(percent);
 	const filledCells = Math.round((safePercent / 100) * barWidth);
 	const emptyCells = barWidth - filledCells;
-	const filled = process.env["OMO_COCKPIT_ASCII"] === "1" ? "#" : "█";
-	const empty = process.env["OMO_COCKPIT_ASCII"] === "1" ? "-" : "░";
+	const filled = process.env["COCKPIT_ASCII"] === "1" ? "#" : "█";
+	const empty = process.env["COCKPIT_ASCII"] === "1" ? "-" : "░";
 
 	return `[${filled.repeat(filledCells)}${empty.repeat(emptyCells)}]`;
 }

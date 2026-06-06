@@ -23,7 +23,7 @@ const LEGACY_COCKPIT_FILES = [
 	"architecture_KR.md",
 ] as const;
 
-type BoulderWork = {
+type ProjectWork = {
 	readonly activePlan: string;
 	readonly planName: string;
 	readonly status: string;
@@ -57,16 +57,16 @@ export async function collectCockpitModel(
 async function collectProgress(
 	repoRoot: string,
 ): Promise<CockpitProgressSummary> {
-	const boulderPath = join(repoRoot, ".omo", "boulder.json");
-	const boulderText = await readOptionalText(boulderPath);
-	if (boulderText === null) {
+	const statePath = join(repoRoot, ".cockpit", "state.json");
+	const stateText = await readOptionalText(statePath);
+	if (stateText === null) {
 		const ulwProgress = await collectUlwLoopProgress(repoRoot);
 		return ulwProgress ?? progress("not_started", 0, 0, null, null, []);
 	}
-	const parsed = parseJsonRecord(boulderText);
+	const parsed = parseJsonRecord(stateText);
 	if (parsed === null)
 		return progress("warning", 0, 0, null, null, [
-			`Malformed JSON: ${repoRelative(repoRoot, boulderPath)}`,
+			`Malformed JSON: ${repoRelative(repoRoot, statePath)}`,
 		]);
 	const work = activeWork(parsed);
 	if (work === null) return progress("not_started", 0, 0, null, null, []);
@@ -141,7 +141,7 @@ function statusFromChecklist(checklist: Checklist): CockpitProgressStatus {
 	return checklist.remaining === 0 ? "complete" : "in_progress";
 }
 
-function activeWork(state: Record<string, unknown>): BoulderWork | null {
+function activeWork(state: Record<string, unknown>): ProjectWork | null {
 	const works = state["works"];
 	const candidates = isRecord(works) ? Object.values(works) : [state];
 	for (const candidate of candidates) {
@@ -152,7 +152,7 @@ function activeWork(state: Record<string, unknown>): BoulderWork | null {
 	return null;
 }
 
-function parseWork(value: unknown): BoulderWork | null {
+function parseWork(value: unknown): ProjectWork | null {
 	if (!isRecord(value)) return null;
 	const activePlan = value["active_plan"];
 	const planName = value["plan_name"];
@@ -200,7 +200,7 @@ async function detectLegacyFiles(repoRoot: string): Promise<string[]> {
 	const found: string[] = [];
 	for (const fileName of LEGACY_COCKPIT_FILES) {
 		if (await fileExistsExactCase(repoRoot, fileName)) found.push(fileName);
-		const cockpitRelativePath = join(".omo", "cockpit", fileName);
+		const cockpitRelativePath = join(".cockpit", fileName);
 		if (await fileExistsExactCase(repoRoot, cockpitRelativePath))
 			found.push(cockpitRelativePath);
 	}
@@ -234,7 +234,7 @@ async function collectStateSources(
 		await summarizeJsonlSource(
 			repoRoot,
 			"start-work ledger",
-			".omo/start-work/ledger.jsonl",
+			".cockpit/start-work/ledger.jsonl",
 		),
 		await summarizeUlwLoopGoals(repoRoot),
 		await summarizeUlwLoopLedger(repoRoot),
@@ -257,7 +257,7 @@ async function summarizeUlwLoopGoals(
 	repoRoot: string,
 ): Promise<CockpitStateSource> {
 	const source = await findLatestUlwLoopFile(repoRoot, "goals.json");
-	const relativePath = source?.relativePath ?? ".omo/ulw-loop/goals.json";
+	const relativePath = source?.relativePath ?? ".cockpit/ulw-loop/goals.json";
 	const text =
 		source === null ? null : await readOptionalText(source.absolutePath);
 	if (text === null)
@@ -291,7 +291,7 @@ async function summarizeUlwLoopLedger(
 	if (source === null)
 		return {
 			name: "ulw-loop ledger",
-			path: ".omo/ulw-loop/ledger.jsonl",
+			path: ".cockpit/ulw-loop/ledger.jsonl",
 			status: "missing",
 			summary: "not present",
 		};
@@ -381,12 +381,12 @@ async function findLatestUlwLoopFile(
 	repoRoot: string,
 	fileName: "goals.json" | "ledger.jsonl",
 ): Promise<UlwLoopFile | null> {
-	const basePath = join(repoRoot, ".omo", "ulw-loop");
+	const basePath = join(repoRoot, ".cockpit", "ulw-loop");
 	const candidates: UlwLoopFile[] = [];
 	await pushUlwLoopCandidate(
 		candidates,
 		join(basePath, fileName),
-		join(".omo", "ulw-loop", fileName),
+		join(".cockpit", "ulw-loop", fileName),
 	);
 	const entries = await readDirOptional(basePath);
 	for (const entry of entries) {
@@ -394,7 +394,7 @@ async function findLatestUlwLoopFile(
 		await pushUlwLoopCandidate(
 			candidates,
 			join(basePath, entry.name, fileName),
-			join(".omo", "ulw-loop", entry.name, fileName),
+			join(".cockpit", "ulw-loop", entry.name, fileName),
 		);
 	}
 	return (

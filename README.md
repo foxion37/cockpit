@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/status-public%20package-14b8a6" alt="public package">
 </p>
 
-Cockpit is a dot-image flavored Markdown command center for long-running Codex work. It turns local plans, progress ledgers, graph-source hints, and session state into four readable files under `.omo/cockpit/`.
+Cockpit is a dot-image flavored Markdown command center for long-running Codex work. It turns local plans, progress ledgers, graph-source hints, and session state into four readable files under `.cockpit/`.
 
 It is intentionally narrow: one surface, four files, deterministic Markdown, and no extra dashboard sprawl.
 
@@ -33,7 +33,7 @@ Cockpit is useful when a session has enough moving parts that plain chat history
 ### What Cockpit Writes
 
 ```text
-.omo/cockpit/
+.cockpit/
 ├─ WORKPLAN.md          overall plan, phase progress, batch progress
 ├─ ARCHITECTURE.md      Mermaid architecture and local graph-source status
 ├─ STATUS_KR.md         Korean progress summary in /cavexplain style
@@ -89,10 +89,10 @@ flowchart TB
     Trigger --> Triggers
 
     subgraph Sources["Durable Local State"]
-        Boulder[".omo/boulder.json"]
-        Plans[".omo/plans"]
-        StartWork[".omo/start-work"]
-        UlwLoop[".omo/ulw-loop"]
+        StateFile[".cockpit/state.json"]
+        Plans[".cockpit/plans"]
+        StartWork[".cockpit/start-work"]
+        UlwLoop[".cockpit/ulw-loop"]
         GraphSources["CodeGraph / codebase-memory / Understand-Anything"]
     end
 
@@ -134,7 +134,7 @@ Phase C      20% ███░░░░░░░░░░░░
 Use ASCII mode when logs or terminals need plain characters:
 
 ```sh
-OMO_COCKPIT_ASCII=1 cockpit update --repo-root "$PWD" --json
+COCKPIT_ASCII=1 cockpit update --repo-root "$PWD" --json
 ```
 
 ### Usage
@@ -159,9 +159,9 @@ cockpit cockpit update --repo-root "$PWD" --json
 
 ### Hooks
 
-Cockpit is designed to refresh automatically inside a Codex/OMO plugin session:
+Cockpit is designed to refresh automatically inside a Codex plugin session:
 
-- `UserPromptSubmit` refreshes only for Cockpit, OMO, or skill-related prompts.
+- `UserPromptSubmit` refreshes only for Cockpit or skill-related prompts.
 - `Stop` refreshes the dashboard after work completes.
 - `SubagentStop` refreshes when a subagent finishes.
 - Hook failures return empty output so they do not block other hook behavior.
