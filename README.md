@@ -18,6 +18,14 @@ Cockpit is a dot-image flavored Markdown command center for long-running Codex w
 
 It is intentionally narrow: one surface, four files, deterministic Markdown, and no extra dashboard sprawl.
 
+### Design Intent
+
+Cockpit is a small guardrail bundle for people working with coding agents. It helps beginners avoid drifting off course while repeatedly approving agent actions they cannot fully inspect yet.
+
+When developer terminology gets dense, Cockpit gives you a place to check where the work is, what has changed, and what the agent should pay attention to next. You can also point the agent back to the Cockpit files and ask it to verify its work against them.
+
+Cockpit works best with careful planning. The more detailed the plan is, especially when it comes from a deep conversation about intent, phases, and success criteria, the more accurately Cockpit can summarize progress and keep the session grounded.
+
 ### Use Scenes
 
 Cockpit is useful when a session has enough moving parts that plain chat history stops being a good source of truth.
