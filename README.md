@@ -48,9 +48,9 @@ Cockpit is useful when a session has enough moving parts that plain chat history
 
 `AGENT_GUARDRAILS.md` is for the next agent. It captures mutation boundaries, source-of-truth files, and things not to infer from stale generated output.
 
-### Gauge Graphics
+### Gauge Accents
 
-The heart of Cockpit is readable text graphics. They work in GitHub, terminals, saved logs, and agent handoffs.
+Gauge graphics are a visual accent, not the core contract. They make progress easier to scan in GitHub, terminals, saved logs, and agent handoffs.
 
 ```text
 ┌─ Pulse Board ─────────────────────────────────┐
