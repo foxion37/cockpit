@@ -26,6 +26,29 @@ When developer terminology gets dense, Cockpit gives you a place to check where 
 
 Cockpit works best with careful planning. The more detailed the plan is, especially when it comes from a deep conversation about intent, phases, and success criteria, the more accurately Cockpit can summarize progress and keep the session grounded.
 
+### Installation
+
+The easiest path is to ask your coding agent to install it for the current repository:
+
+```text
+Install foxion37/cockpit in this repo and run the first cockpit update.
+Use the Cockpit skill if it is available.
+```
+
+You can also install it directly with npm from GitHub:
+
+```sh
+npm install -g github:foxion37/cockpit
+cockpit update --repo-root "$PWD" --json
+```
+
+Or keep it local to one project:
+
+```sh
+npm install --save-dev github:foxion37/cockpit
+npx cockpit update --repo-root "$PWD" --json
+```
+
 ### Use Scenes
 
 Cockpit is useful when a session has enough moving parts that plain chat history stops being a good source of truth.
@@ -187,3 +210,5 @@ The GitHub Actions workflow runs `npm ci`, `npm test`, and `npm run check` on ev
 ## License
 
 MIT
+
+MIT is not the automatic default for every open-source repository. A project has no reusable open-source license unless the author explicitly includes one. Cockpit uses MIT on purpose so it can be reused, forked, and adapted with minimal friction.
