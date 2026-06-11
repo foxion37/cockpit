@@ -1,5 +1,8 @@
 #!/usr/bin/env node
+import { realpathSync } from "node:fs";
+import { resolve } from "node:path";
 import { stdin as input, stderr, stdout } from "node:process";
+import { fileURLToPath } from "node:url";
 
 import { runCockpitHook } from "./hooks.js";
 import { updateCockpit } from "./update.js";
@@ -71,7 +74,22 @@ async function readStdin(): Promise<string> {
 	return Buffer.concat(chunks).toString("utf8");
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+export function isCliEntry(
+	importMetaUrl: string,
+	argvPath: string | undefined,
+): boolean {
+	if (argvPath === undefined) return false;
+	try {
+		return (
+			realpathSync(fileURLToPath(importMetaUrl)) ===
+			realpathSync(resolve(argvPath))
+		);
+	} catch {
+		return false;
+	}
+}
+
+if (isCliEntry(import.meta.url, process.argv[1])) {
 	cockpitCommand(process.argv.slice(2))
 		.then((code) => {
 			process.exit(code);
