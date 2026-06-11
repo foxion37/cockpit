@@ -119,6 +119,44 @@ describe("cockpit markdown renderers", () => {
 		expect(files["STATUS_KR.md"]).toContain("50%");
 	});
 
+	it("renders STATUS_KR as a generous but aligned dot status board", () => {
+		const files = renderCockpitFiles(model);
+		const status = files["STATUS_KR.md"];
+
+		expect(status).toContain("## 상태판");
+		expect(status).toContain("```text\n");
+		expect(status).toContain(
+			"진행       50%  [██████████░░░░░░░░░░]  1/2 완료",
+		);
+		expect(status).toContain("남은일      1개  [●○]  다음: Batch 2");
+		expect(status).toContain("리스크      정상  큰 경고 없음");
+		expect(status).not.toContain("미니 펄스:");
+	});
+
+	it("renders STATUS_KR with a fixed-width Korean status board", () => {
+		const files = renderCockpitFiles(model);
+		const statusKr = files["STATUS_KR.md"];
+
+		expect(statusKr).toContain("상태판");
+
+		const board = extractFencedBlockNear(statusKr, "상태판");
+		expect(board).toContain("진행률");
+		expect(board).toContain("현재 작업");
+		expectAlignedPipeRows(board);
+	});
+
+	it("renders WORKPLAN phase progress as fixed-width aligned rows", () => {
+		const files = renderCockpitFiles(model);
+		const phaseSection = extractSection(files["WORKPLAN.md"], "## Phases");
+
+		expect(phaseSection).not.toMatch(/^- /m);
+
+		const phaseBoard = extractFirstFencedBlock(phaseSection, "WORKPLAN phases");
+		expect(phaseBoard).toContain("Phase 1: Foundation");
+		expect(phaseBoard).toContain("Phase 4: Verification");
+		expectAlignedPipeRows(phaseBoard);
+	});
+
 	it("handles the zero-task boundary without NaN or Infinity", () => {
 		const files = renderCockpitFiles(model);
 
@@ -134,6 +172,18 @@ describe("cockpit markdown renderers", () => {
 		expect(files["STATUS_KR.md"]).not.toContain("NaN");
 	});
 
+	it("keeps WORKPLAN progress rows aligned for scanning", () => {
+		const files = renderCockpitFiles(model);
+		const workplan = files["WORKPLAN.md"];
+
+		expect(workplan).toContain("```text\n");
+		expect(workplan).toContain(
+			"overall     50%  [██████████░░░░░░░░░░]  in_progress",
+		);
+		expect(workplan).toContain("batch       50%  [██████░░░░░░]  Batch 2");
+		expect(workplan).toContain("Phase 2    100%  [████████]");
+	});
+
 	it("keeps AGENT_GUARDRAILS plain and free of graphics language", () => {
 		const files = renderCockpitFiles(model);
 
@@ -143,3 +193,87 @@ describe("cockpit markdown renderers", () => {
 		expect(files["AGENT_GUARDRAILS.md"]).not.toContain("결론");
 	});
 });
+
+function extractSection(markdown: string, heading: string): string {
+	const headingIndex = markdown.indexOf(heading);
+	expect(
+		headingIndex,
+		`${heading} section should exist`,
+	).toBeGreaterThanOrEqual(0);
+
+	const sectionStart = headingIndex + heading.length;
+	const remainingMarkdown = markdown.slice(sectionStart);
+	const nextHeadingIndex = remainingMarkdown.search(/\n## /);
+	const section =
+		nextHeadingIndex === -1
+			? remainingMarkdown
+			: remainingMarkdown.slice(0, nextHeadingIndex);
+
+	return section.trim();
+}
+
+function extractFencedBlockNear(markdown: string, label: string): string {
+	const labelIndex = markdown.indexOf(label);
+	expect(labelIndex, `${label} label should exist`).toBeGreaterThanOrEqual(0);
+
+	return extractFirstFencedBlock(markdown.slice(labelIndex), label);
+}
+
+function extractFirstFencedBlock(
+	markdown: string,
+	description: string,
+): string {
+	const match = markdown.match(/```(?:text|txt)?\n([\s\S]*?)\n```/);
+	expect(
+		match,
+		`${description} should include a fenced code block`,
+	).not.toBeNull();
+
+	return match?.[1] ?? "";
+}
+
+function expectAlignedPipeRows(block: string): void {
+	const rows = block.split("\n").filter((line) => line.includes("|"));
+	expect(
+		rows.length,
+		"expected at least two pipe-delimited rows",
+	).toBeGreaterThan(1);
+
+	const firstRow = rows[0] ?? "";
+	const remainingRows = rows.slice(1);
+	const expectedColumns = pipeDisplayColumns(firstRow);
+	expect(expectedColumns.length).toBeGreaterThan(0);
+
+	for (const row of remainingRows) {
+		expect(pipeDisplayColumns(row)).toEqual(expectedColumns);
+	}
+}
+
+function pipeDisplayColumns(line: string): number[] {
+	const columns: number[] = [];
+	let width = 0;
+
+	for (const character of line) {
+		if (character === "|") {
+			columns.push(width);
+		}
+		width += characterDisplayWidth(character);
+	}
+
+	return columns;
+}
+
+function characterDisplayWidth(character: string): number {
+	const codePoint = character.codePointAt(0) ?? 0;
+	const isWide =
+		(codePoint >= 0x1100 && codePoint <= 0x115f) ||
+		(codePoint >= 0x2e80 && codePoint <= 0xa4cf) ||
+		(codePoint >= 0xac00 && codePoint <= 0xd7a3) ||
+		(codePoint >= 0xf900 && codePoint <= 0xfaff) ||
+		(codePoint >= 0xfe10 && codePoint <= 0xfe19) ||
+		(codePoint >= 0xfe30 && codePoint <= 0xfe6f) ||
+		(codePoint >= 0xff00 && codePoint <= 0xff60) ||
+		(codePoint >= 0xffe0 && codePoint <= 0xffe6);
+
+	return isWide ? 2 : 1;
+}
