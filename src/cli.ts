@@ -52,9 +52,19 @@ async function hookSubcommand(argv: readonly string[]): Promise<number> {
 		return 1;
 	}
 	const raw = await readStdin();
-	const parsed: unknown = raw.trim() === "" ? {} : JSON.parse(raw);
+	const parsed = parseHookPayload(raw);
+	if (parsed === null) return 0;
 	stdout.write(await runCockpitHook(parsed));
 	return 0;
+}
+
+export function parseHookPayload(raw: string): unknown | null {
+	if (raw.trim() === "") return {};
+	try {
+		return JSON.parse(raw);
+	} catch {
+		return null;
+	}
 }
 
 function readValue(argv: readonly string[], flag: string): string | undefined {

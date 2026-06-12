@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { describe, expect, it } from "vitest";
 
-import { isCliEntry } from "../src/cli.js";
+import { isCliEntry, parseHookPayload } from "../src/cli.js";
 
 describe("cockpit cli entry detection", () => {
 	it("matches entrypoint paths that contain spaces", async () => {
@@ -33,5 +33,12 @@ describe("cockpit cli entry detection", () => {
 		await symlink(target, link);
 
 		expect(isCliEntry(pathToFileURL(target).href, link)).toBe(true);
+	});
+});
+
+describe("cockpit hook payload parsing", () => {
+	it("treats malformed hook stdin as a best-effort no-op", () => {
+		expect(parseHookPayload("")).toEqual({});
+		expect(parseHookPayload("{not-json")).toBeNull();
 	});
 });
