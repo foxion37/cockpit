@@ -1,9 +1,10 @@
 {
-	"name": "@code-yeongyu/cockpit",
+	"name": "@foxion37/cockpit",
 	"version": "0.1.0",
 	"description": "A slim, auto-updated Markdown cockpit for Codex work sessions.",
 	"type": "module",
 	"packageManager": "npm@11.12.1",
+	"author": "SeongQ Kim <foxion37@gmail.com>",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
@@ -12,6 +13,9 @@
 	"homepage": "https://github.com/foxion37/cockpit#readme",
 	"bugs": {
 		"url": "https://github.com/foxion37/cockpit/issues"
+	},
+	"publishConfig": {
+		"access": "public"
 	},
 	"keywords": [
 		"codex",
