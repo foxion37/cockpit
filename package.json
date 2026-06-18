@@ -25,7 +25,7 @@
 		"progress-tracking"
 	],
 	"bin": {
-		"cockpit": "./dist/cli.js"
+		"cockpit": "dist/cli.js"
 	},
 	"files": [
 		"dist",
