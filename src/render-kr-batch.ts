@@ -39,9 +39,9 @@ function renderKrBatchCockpit(model: CockpitModel): string {
 		"",
 		"| 구분 | 진행률 |",
 		"|---|---|",
-		`| 전체 목표 | ${renderProgressBar(safePercent)} **${safePercent}%** |`,
-		`| 현재 배치 묶음 | ${renderProgressBar(safePercent)} **${safePercent}%** |`,
-		`| 이번 세션 | ${renderProgressBar(safePercent)} **${safePercent}%** |`,
+		`| 전체 목표 | ${renderKrBatchProgressBar(safePercent)} **${safePercent}%** |`,
+		`| 현재 배치 묶음 | ${renderKrBatchProgressBar(safePercent)} **${safePercent}%** |`,
+		`| 이번 세션 | ${renderKrBatchProgressBar(safePercent)} **${safePercent}%** |`,
 		"",
 		"```mermaid",
 		"flowchart LR",
@@ -56,8 +56,8 @@ function renderKrBatchCockpit(model: CockpitModel): string {
 		"",
 		"| 목표 | 쉬운 설명 | 진행률 |",
 		"|---|---|---|",
-		`| 현재 계획 | 진행 중인 계획을 끝까지 검증 가능한 상태로 정리 | ${renderProgressBar(safePercent)} **${safePercent}%** |`,
-		`| 완료 기준 | 테스트, 빌드, 수동 확인까지 남기기 | ${renderProgressBar(safePercent)} **${safePercent}%** |`,
+		`| 현재 계획 | 진행 중인 계획을 끝까지 검증 가능한 상태로 정리 | ${renderKrBatchProgressBar(safePercent)} **${safePercent}%** |`,
+		`| 완료 기준 | 테스트, 빌드, 수동 확인까지 남기기 | ${renderKrBatchProgressBar(safePercent)} **${safePercent}%** |`,
 		"",
 		"```mermaid",
 		"flowchart LR",
@@ -72,7 +72,7 @@ function renderKrBatchCockpit(model: CockpitModel): string {
 		"",
 		"| 배치 | 지금의 의미 | 상태 | 진행률 | 자세한 문서 |",
 		"|---|---|---|---|---|",
-		`| 현재 배치 | ${currentTask} | **${status}** | ${renderProgressBar(safePercent)} **${safePercent}%** | \`docs/batches/current-batch.md\` |`,
+		`| 현재 배치 | ${currentTask} | **${status}** | ${renderKrBatchProgressBar(safePercent)} **${safePercent}%** | \`docs/batches/current-batch.md\` |`,
 		"",
 		"```mermaid",
 		"flowchart LR",
@@ -87,7 +87,7 @@ function renderKrBatchCockpit(model: CockpitModel): string {
 		"",
 		"| 이번 세션 | 진행률 |",
 		"|---|---|",
-		`| 완료한 일 | ${renderProgressBar(safePercent)} **${safePercent}%** |`,
+		`| 완료한 일 | ${renderKrBatchProgressBar(safePercent)} **${safePercent}%** |`,
 		`| 남은 일 | ${remainingText} |`,
 		"",
 		"```mermaid",
@@ -99,10 +99,16 @@ function renderKrBatchCockpit(model: CockpitModel): string {
 		"  class S2 caution",
 		"```",
 		"",
-		"## 자세한 문서",
+		"## 지금 사용자가 알면 되는 것",
 		"",
-		"- `docs/batches/README.md`",
-		"- `docs/batches/current-batch.md`",
+		"- Cockpit은 현재 상태와 진행률만 짧게 보여줍니다.",
+		"- 전체 batch 목록은 `docs/batches/README.md`에서 확인합니다.",
+		"- 현재 batch 기록은 `docs/batches/current-batch.md`에서 확인합니다.",
+		"",
+		"## 다음 단계",
+		"",
+		"1. `docs/batches/current-batch.md`에서 상세 작업 기록을 확인합니다.",
+		"2. 다음 검증 결과를 Cockpit과 batch 문서에 반영합니다.",
 		"",
 	].join("\n");
 }
@@ -172,4 +178,9 @@ function renderKoreanStatus(status: string): string {
 		default:
 			return status;
 	}
+}
+
+function renderKrBatchProgressBar(percent: number): string {
+	const bar = renderProgressBar(percent);
+	return bar.startsWith("[") && bar.endsWith("]") ? bar.slice(1, -1) : bar;
 }

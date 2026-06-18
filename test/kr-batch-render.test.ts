@@ -52,9 +52,11 @@ describe("kr-batch renderer profile", () => {
 			3,
 		);
 		expect(cockpit).not.toMatch(/<span|style=|---:/);
-		expect(cockpit).toMatch(/\| 전체 목표 \| \[█{8}░{12}\] \*\*40%\*\* \|/);
+		expect(cockpit).toContain("## 지금 사용자가 알면 되는 것");
+		expect(cockpit).toContain("## 다음 단계");
+		expect(cockpit).toMatch(/\| 전체 목표 \| █{8}░{12} \*\*40%\*\* \|/);
 		expect(cockpit).toMatch(
-			/\| 현재 배치 \| profile contract \| \*\*진행 중\*\* \| \[█{8}░{12}\] \*\*40%\*\* \| `docs\/batches\/current-batch\.md` \|/,
+			/\| 현재 배치 \| profile contract \| \*\*진행 중\*\* \| █{8}░{12} \*\*40%\*\* \| `docs\/batches\/current-batch\.md` \|/,
 		);
 
 		const batchIndex = files["docs/batches/README.md"];
