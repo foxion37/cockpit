@@ -176,6 +176,10 @@ function renderKrBatchCockpit(model: CockpitModel): string {
 	const currentTask = progress.currentTask ?? "정해진 작업 없음";
 	const activePlanName = progress.activePlanName ?? "계획 없음";
 	const status = renderKoreanStatus(progress.status);
+	const remainingText =
+		progress.remainingTasks === 0
+			? "남은 작업 없음"
+			: `${progress.remainingTasks}개 남음`;
 
 	return [
 		"# Cockpit",
@@ -210,19 +214,47 @@ function renderKrBatchCockpit(model: CockpitModel): string {
 		"| 목표 | 쉬운 설명 | 진행률 |",
 		"|---|---|---|",
 		`| 현재 계획 | 진행 중인 계획을 끝까지 검증 가능한 상태로 정리 | ${renderProgressBar(safePercent)} **${safePercent}%** |`,
+		`| 완료 기준 | 테스트, 빌드, 수동 확인까지 남기기 | ${renderProgressBar(safePercent)} **${safePercent}%** |`,
+		"",
+		"```mermaid",
+		"flowchart LR",
+		`  G1["현재 계획<br/>${safePercent}%"] --> G2["완료 기준<br/>${safePercent}%"]`,
+		"  classDef active fill:#dbeafe,stroke:#2563eb,color:#1e3a8a",
+		"  classDef done fill:#dcfce7,stroke:#16a34a,color:#14532d",
+		"  class G1 active",
+		"  class G2 done",
+		"```",
 		"",
 		"## 2. 배치 구분과 배치별 진행률",
 		"",
 		"| 배치 | 지금의 의미 | 상태 | 진행률 | 자세한 문서 |",
 		"|---|---|---|---|---|",
-		`| Current Batch | ${currentTask} | **${status}** | ${renderProgressBar(safePercent)} **${safePercent}%** | \`docs/batches/current-batch.md\` |`,
+		`| 현재 배치 | ${currentTask} | **${status}** | ${renderProgressBar(safePercent)} **${safePercent}%** | \`docs/batches/current-batch.md\` |`,
+		"",
+		"```mermaid",
+		"flowchart LR",
+		`  B["현재 배치<br/>${safePercent}%"] --> D["상세 문서<br/>docs/batches/"]`,
+		"  classDef active fill:#dbeafe,stroke:#2563eb,color:#1e3a8a",
+		"  classDef caution fill:#fef3c7,stroke:#f59e0b,color:#78350f",
+		"  class B active",
+		"  class D caution",
+		"```",
 		"",
 		"## 3. 이번 세션에서 달성한 진행률",
 		"",
 		"| 이번 세션 | 진행률 |",
 		"|---|---|",
 		`| 완료한 일 | ${renderProgressBar(safePercent)} **${safePercent}%** |`,
-		`| 남은 일 | ${progress.remainingTasks}개 |`,
+		`| 남은 일 | ${remainingText} |`,
+		"",
+		"```mermaid",
+		"flowchart LR",
+		`  S1["완료한 일<br/>${safePercent}%"] --> S2["남은 일<br/>${remainingText}"]`,
+		"  classDef active fill:#dbeafe,stroke:#2563eb,color:#1e3a8a",
+		"  classDef caution fill:#fef3c7,stroke:#f59e0b,color:#78350f",
+		"  class S1 active",
+		"  class S2 caution",
+		"```",
 		"",
 		"## 자세한 문서",
 		"",
@@ -234,19 +266,19 @@ function renderKrBatchCockpit(model: CockpitModel): string {
 
 function renderKrBatchIndex(): string {
 	return [
-		"# Batch Documents",
+		"# Batch별 상세 문서",
 		"",
-		"This folder keeps details that are too long for the short cockpit status.",
+		"이 폴더는 Cockpit에 다 담기에는 긴 내용을 보관하는 곳입니다.",
 		"",
-		"## Documents",
+		"## 문서",
 		"",
 		"- `docs/batches/current-batch.md`",
 		"",
-		"## Writing Contract",
+		"## 작성 기준",
 		"",
-		"- Keep the cockpit short.",
-		"- Put commands, logs, and technical decisions in batch documents.",
-		"- Link batch documents from `COCKPIT_KR.md`.",
+		"- Cockpit에는 링크와 진행률만 짧게 둡니다.",
+		"- 명령어, 로그, 기술 판단은 batch 문서에 둡니다.",
+		"- 새 batch 문서는 목표, 확인한 것, 남은 조심거리를 포함합니다.",
 		"",
 	].join("\n");
 }
@@ -254,26 +286,28 @@ function renderKrBatchIndex(): string {
 function renderCurrentBatchDoc(model: CockpitModel): string {
 	const { progress } = model;
 	const safePercent = normalizePercent(progress.percentComplete);
-	const currentTask = progress.currentTask ?? "Current batch";
+	const currentTask = progress.currentTask ?? "현재 배치";
 	const warnings =
-		progress.warnings.length === 0 ? ["- none"] : listOrNone(progress.warnings);
+		progress.warnings.length === 0
+			? ["- 아직 따로 적을 조심거리는 없습니다."]
+			: listOrNone(progress.warnings);
 
 	return [
-		"# Current Batch",
+		"# 현재 배치 상세 문서",
 		"",
-		`Status: **${progress.status}**`,
-		`Progress: ${renderProgressBar(safePercent)} **${safePercent}%**`,
+		`상태: **${renderKoreanStatus(progress.status)}**`,
+		`진행률: ${renderProgressBar(safePercent)} **${safePercent}%**`,
 		"",
-		"## Goal",
+		"## 목표",
 		"",
-		`Complete and verify ${currentTask}.`,
+		`이번 배치는 **${currentTask}** 작업을 끝까지 구현하고 검증하는 것이 목표입니다.`,
 		"",
-		"## Checks",
+		"## 확인한 것",
 		"",
-		`- Completed tasks: ${progress.completedTasks}/${progress.totalTasks}`,
-		`- Remaining tasks: ${progress.remainingTasks}`,
+		`- 완료한 작업: ${progress.completedTasks}/${progress.totalTasks}`,
+		`- 남은 작업: ${progress.remainingTasks}`,
 		"",
-		"## Notes",
+		"## 남은 조심거리",
 		"",
 		...warnings,
 		"",

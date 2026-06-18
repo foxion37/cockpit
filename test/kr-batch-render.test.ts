@@ -47,16 +47,25 @@ describe("kr-batch renderer profile", () => {
 		expect(cockpit).toContain("classDef active");
 		expect(cockpit).toContain("**40%**");
 		expect(cockpit.split("\n").length).toBeLessThanOrEqual(120);
+		expect(cockpit.match(/```mermaid/g)?.length ?? 0).toBeGreaterThanOrEqual(3);
+		expect(cockpit.match(/\bclassDef\b/g)?.length ?? 0).toBeGreaterThanOrEqual(
+			3,
+		);
+		expect(cockpit).not.toMatch(/<span|style=|---:/);
+		expect(cockpit).toMatch(/\| 전체 목표 \| \[█{8}░{12}\] \*\*40%\*\* \|/);
+		expect(cockpit).toMatch(
+			/\| 현재 배치 \| profile contract \| \*\*진행 중\*\* \| \[█{8}░{12}\] \*\*40%\*\* \| `docs\/batches\/current-batch\.md` \|/,
+		);
 
 		const batchIndex = files["docs/batches/README.md"];
-		expect(batchIndex).toContain("# Batch Documents");
+		expect(batchIndex).toContain("# Batch별 상세 문서");
 		expect(batchIndex).toContain("docs/batches/current-batch.md");
 
 		const currentBatch = files["docs/batches/current-batch.md"];
-		expect(currentBatch).toContain("# Current Batch");
+		expect(currentBatch).toContain("# 현재 배치 상세 문서");
 		expect(currentBatch).toContain("profile contract");
-		expect(currentBatch).toContain("## Goal");
-		expect(currentBatch).toContain("## Checks");
+		expect(currentBatch).toContain("## 목표");
+		expect(currentBatch).toContain("## 확인한 것");
 	});
 
 	it("keeps generic kr-batch templates free of local project text", () => {
