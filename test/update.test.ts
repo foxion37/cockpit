@@ -3,9 +3,29 @@ import { tmpdir } from "node:os";
 import { basename, join } from "node:path";
 import { describe, expect, it } from "vitest";
 
+import { COCKPIT_FILE_NAMES } from "../src/types.js";
 import { updateCockpit } from "../src/update.js";
 
 describe("cockpit update", () => {
+	it("creates exactly the default four cockpit output files", async () => {
+		const repo = await mkdtemp(join(tmpdir(), "cockpit-default-contract-"));
+
+		const result = await updateCockpit(repo);
+		const cockpitEntries = await readdir(join(repo, ".cockpit"), {
+			withFileTypes: true,
+		});
+		const cockpitFiles = cockpitEntries
+			.filter((entry) => entry.isFile())
+			.map((entry) => entry.name)
+			.sort();
+		const expectedFiles = [...COCKPIT_FILE_NAMES].sort();
+
+		expect(result.files.map((file) => basename(file)).sort()).toEqual(
+			expectedFiles,
+		);
+		expect(cockpitFiles).toEqual(expectedFiles);
+	});
+
 	it("writes exactly the four primary cockpit markdown files", async () => {
 		const repo = await mkdtemp(join(tmpdir(), "cockpit-update-"));
 		await mkdir(join(repo, ".cockpit", "plans"), { recursive: true });
