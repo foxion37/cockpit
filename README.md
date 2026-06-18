@@ -18,6 +18,8 @@ Cockpit is a dot-image flavored Markdown command center for long-running Codex w
 
 It is intentionally narrow: one surface, four files, deterministic Markdown, and no extra dashboard sprawl.
 
+Current release prep version: `0.2.0`.
+
 ### Design Intent
 
 Cockpit is a small guardrail bundle for people working with coding agents. It helps beginners avoid drifting off course while repeatedly approving agent actions they cannot fully inspect yet.
@@ -63,6 +65,8 @@ Cockpit is useful when a session has enough moving parts that plain chat history
 
 ### What Cockpit Writes
 
+By default, Cockpit keeps the original four-file surface under `.cockpit/`:
+
 ```text
 .cockpit/
 ├─ WORKPLAN.md          overall plan, phase progress, batch progress
@@ -78,6 +82,27 @@ Cockpit is useful when a session has enough moving parts that plain chat history
 `STATUS_KR.md` is the human-facing Korean summary. It keeps the tone short and direct, shaped for `/cavexplain`: `결론`, `근거`, `리스크`, and `다음`.
 
 `AGENT_GUARDRAILS.md` is for the next agent. It captures mutation boundaries, source-of-truth files, and things not to infer from stale generated output.
+
+### `kr-batch` Profile
+
+The default mode is still the backward-compatible `.cockpit/` dashboard above. Use `kr-batch` when a project needs a short Korean status board for humans and separate batch detail notes:
+
+```sh
+cockpit update --repo-root "$PWD" --profile kr-batch --json
+```
+
+The `kr-batch` profile writes:
+
+```text
+COCKPIT_KR.md
+docs/batches/
+├─ README.md
+└─ current-batch.md
+```
+
+`COCKPIT_KR.md` stays brief: current state, three progress layers, and links to detail files. Longer command logs, technical decisions, and batch notes belong in `docs/batches/`.
+
+Progress color must be visible in Markdown renderers. For that reason, `kr-batch` uses Mermaid `classDef` color rules and avoids inline HTML styling.
 
 ### Gauge Accents
 
@@ -188,6 +213,14 @@ The legacy plugin-style command remains supported:
 cockpit cockpit update --repo-root "$PWD" --json
 ```
 
+Validate a `kr-batch` cockpit before trusting it as a handoff surface:
+
+```sh
+cockpit validate --repo-root "$PWD" --profile kr-batch --json
+```
+
+Validation failures are reported as structured diagnostics. They cover missing required sections, unresolved `docs/batches/` links, inline HTML styling, missing Mermaid color blocks, malformed progress rows, and overlong Cockpit documents.
+
 ### Hooks
 
 Cockpit is designed to refresh automatically inside a Codex plugin session:
@@ -196,6 +229,14 @@ Cockpit is designed to refresh automatically inside a Codex plugin session:
 - `Stop` refreshes the dashboard after work completes.
 - `SubagentStop` refreshes when a subagent finishes.
 - Hook failures return empty output so they do not block other hook behavior.
+
+Hook validation is best-effort by default. To make a Stop hook fail loudly when the `kr-batch` surface does not validate, enable strict mode:
+
+```sh
+COCKPIT_STRICT=1 cockpit hook stop
+```
+
+Strict mode is opt-in so existing default Cockpit hooks keep refreshing without blocking unrelated agent hooks.
 
 ### Development
 
