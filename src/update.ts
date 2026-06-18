@@ -1,10 +1,14 @@
 import { mkdir, writeFile } from "node:fs/promises";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 
 import { collectCockpitModel } from "./collect.js";
 import { cockpitDir, cockpitFilePath } from "./paths.js";
 import { renderCockpitFiles } from "./render.js";
-import { COCKPIT_FILE_NAMES } from "./types.js";
+import {
+	COCKPIT_FILE_NAMES,
+	type CockpitProfile,
+	KR_BATCH_FILE_NAMES,
+} from "./types.js";
 
 export interface CockpitUpdateResult {
 	readonly files: readonly string[];
@@ -12,13 +16,34 @@ export interface CockpitUpdateResult {
 	readonly warnings: readonly string[];
 }
 
+export interface CockpitUpdateOptions {
+	readonly profile?: CockpitProfile;
+}
+
 export async function updateCockpit(
 	repoRoot: string,
+	options: CockpitUpdateOptions = {},
 ): Promise<CockpitUpdateResult> {
 	const model = await collectCockpitModel(repoRoot);
+	const files: string[] = [];
+
+	if (options.profile === "kr-batch") {
+		const rendered = renderCockpitFiles(model, { profile: "kr-batch" });
+		for (const fileName of KR_BATCH_FILE_NAMES) {
+			const path = join(repoRoot, ...fileName.split("/"));
+			await mkdir(dirname(path), { recursive: true });
+			await writeFile(path, ensureFinalNewline(rendered[fileName]), "utf8");
+			files.push(path);
+		}
+		return {
+			files,
+			legacyFilesDetected: model.legacyFilesDetected,
+			warnings: model.progress.warnings,
+		};
+	}
+
 	const rendered = renderCockpitFiles(model);
 	await mkdir(cockpitDir(repoRoot), { recursive: true });
-	const files: string[] = [];
 	for (const fileName of COCKPIT_FILE_NAMES) {
 		const path = cockpitFilePath(repoRoot, fileName);
 		await writeFile(path, ensureFinalNewline(rendered[fileName]), "utf8");

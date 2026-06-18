@@ -9,6 +9,22 @@ export const COCKPIT_FILE_NAMES = [
 
 export type CockpitFileName = (typeof COCKPIT_FILE_NAMES)[number];
 
+export const COCKPIT_PROFILES = ["default", "kr-batch"] as const;
+
+export type CockpitProfile = (typeof COCKPIT_PROFILES)[number];
+
+export interface CockpitRenderOptions {
+	readonly profile?: CockpitProfile;
+}
+
+export const KR_BATCH_FILE_NAMES = [
+	"COCKPIT_KR.md",
+	"docs/batches/README.md",
+	"docs/batches/current-batch.md",
+] as const;
+
+export type KrBatchFileName = (typeof KR_BATCH_FILE_NAMES)[number];
+
 export type CockpitProgressStatus =
 	| "not_started"
 	| "in_progress"
@@ -67,3 +83,5 @@ export interface CockpitModel {
 }
 
 export type CockpitRenderedFiles = Record<CockpitFileName, string>;
+
+export type KrBatchRenderedFiles = Record<KrBatchFileName, string>;

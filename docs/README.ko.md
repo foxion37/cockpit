@@ -18,6 +18,8 @@ Cockpit은 긴 Codex 작업을 위한 dot-image 감성의 작은 Markdown 조종
 
 핵심은 단순함입니다. 파일을 많이 만들지 않고, 매번 같은 구조로 갱신하며, 사람이 보는 요약과 에이전트가 참고할 가드레일을 분리합니다.
 
+현재 릴리스 준비 버전은 `0.2.0`입니다.
+
 ### 기획 의도
 
 Cockpit은 코딩 에이전트와 함께 작업하는 사람을 위한 작은 가드레일 문서 묶음입니다. 특히 초보자가 에이전트의 작업에 계속 `승인`만 하다가 작업이 샛길로 빠지는 상황을 줄이기 위해 만들었습니다.
@@ -61,6 +63,8 @@ npx cockpit update --repo-root "$PWD" --json
 
 ### 생성되는 파일
 
+기본 모드는 기존과 같은 `.cockpit/` 네 개 파일을 만듭니다.
+
 ```text
 .cockpit/
 ├─ WORKPLAN.md          전체 작업계획, 현재 진행률, 페이즈/배치 진행률
@@ -76,6 +80,27 @@ npx cockpit update --repo-root "$PWD" --json
 `STATUS_KR.md`는 사용자가 바로 읽는 한글 요약입니다. `/cavexplain`처럼 짧고 선명하게 `결론`, `근거`, `리스크`, `다음` 중심으로 씁니다.
 
 `AGENT_GUARDRAILS.md`는 다음 에이전트를 위한 파일입니다. 어디를 수정해도 되는지, 무엇을 원본 상태로 봐야 하는지, 오래된 출력에서 추론하면 안 되는 점을 적습니다.
+
+### `kr-batch` 프로필
+
+기본 모드는 호환성을 위해 `.cockpit/` 네 개 파일을 그대로 씁니다. 사람이 읽는 짧은 한국어 상황판과 batch별 상세 문서를 분리하고 싶을 때는 `kr-batch`를 사용합니다.
+
+```sh
+cockpit update --repo-root "$PWD" --profile kr-batch --json
+```
+
+`kr-batch`는 다음 파일을 만듭니다.
+
+```text
+COCKPIT_KR.md
+docs/batches/
+├─ README.md
+└─ current-batch.md
+```
+
+`COCKPIT_KR.md`에는 현재 상태, 전체 목표/배치/이번 세션의 세 단계 진행률, 상세 문서 링크만 짧게 둡니다. 긴 명령어 로그, 기술 판단, batch별 작업 기록은 `docs/batches/` 아래에 보관합니다.
+
+앱에서 색이 실제로 보여야 하므로 `kr-batch`는 Mermaid `classDef`로 색을 표현합니다. inline HTML 색상 표현은 사용하지 않습니다.
 
 ### 게이지
 
@@ -142,6 +167,20 @@ Codex plugin session 안에서는 hook을 통해 자동 갱신됩니다.
 
 ```sh
 cockpit update --repo-root "$PWD" --json
+```
+
+`kr-batch` 문서가 handoff에 충분한지 확인하려면 validation을 실행합니다.
+
+```sh
+cockpit validate --repo-root "$PWD" --profile kr-batch --json
+```
+
+validation failure는 구조화된 진단으로 나옵니다. 필수 섹션 누락, 깨진 `docs/batches/` 링크, inline HTML style, Mermaid 색상 규칙 누락, 진행률 행 문제, 너무 긴 Cockpit 문서를 잡습니다.
+
+hook은 기본적으로 best-effort라서 실패해도 다른 hook을 막지 않습니다. Stop hook에서 validation failure를 실제 실패로 만들고 싶을 때만 strict mode를 켭니다.
+
+```sh
+COCKPIT_STRICT=1 cockpit hook stop
 ```
 
 ### 개발
