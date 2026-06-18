@@ -14,9 +14,9 @@
   <img src="https://img.shields.io/badge/status-public%20package-14b8a6" alt="public package">
 </p>
 
-Cockpit is a dot-image flavored Markdown command center for long-running Codex work. It turns local plans, progress ledgers, graph-source hints, and session state into four readable files under `.cockpit/`.
+Cockpit is a Markdown cockpit for AI-agent work: concise status docs, Korean batch dashboards, validation gates, and opt-in strict hooks.
 
-It is intentionally narrow: one surface, four files, deterministic Markdown, and no extra dashboard sprawl.
+It stays intentionally narrow by default: one surface, four legacy `.cockpit/` files, deterministic Markdown, and no extra dashboard sprawl unless you opt into the `kr-batch` profile.
 
 Current release prep version: `0.2.0`.
 

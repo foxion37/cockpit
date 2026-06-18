@@ -1,7 +1,7 @@
 {
 	"name": "@foxion37/cockpit",
 	"version": "0.2.0",
-	"description": "A slim, auto-updated Markdown cockpit for Codex work sessions.",
+	"description": "Markdown cockpit for AI-agent work with concise status docs, Korean batch dashboards, validation gates, and strict hooks.",
 	"type": "module",
 	"packageManager": "npm@11.12.1",
 	"author": "SeongQ Kim <foxion37@gmail.com>",
