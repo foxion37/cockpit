@@ -2,14 +2,40 @@ import {
 	COCKPIT_FILE_NAMES,
 	type CockpitModel,
 	type CockpitRenderedFiles,
+	type CockpitRenderOptions,
+	type KrBatchRenderedFiles,
 } from "./types.js";
 
-export function renderCockpitFiles(model: CockpitModel): CockpitRenderedFiles {
+export function renderCockpitFiles(model: CockpitModel): CockpitRenderedFiles;
+export function renderCockpitFiles(
+	model: CockpitModel,
+	options: CockpitRenderOptions & { profile: "default" },
+): CockpitRenderedFiles;
+export function renderCockpitFiles(
+	model: CockpitModel,
+	options: CockpitRenderOptions & { profile: "kr-batch" },
+): KrBatchRenderedFiles;
+export function renderCockpitFiles(
+	model: CockpitModel,
+	options: CockpitRenderOptions = {},
+): CockpitRenderedFiles | KrBatchRenderedFiles {
+	if (options.profile === "kr-batch") {
+		return renderKrBatchFiles(model);
+	}
+
 	return {
 		"WORKPLAN.md": renderWorkplan(model),
 		"ARCHITECTURE.md": renderArchitecture(model),
 		"STATUS_KR.md": renderStatusKr(model),
 		"AGENT_GUARDRAILS.md": renderGuardrails(model),
+	};
+}
+
+function renderKrBatchFiles(model: CockpitModel): KrBatchRenderedFiles {
+	return {
+		"COCKPIT_KR.md": renderKrBatchCockpit(model),
+		"docs/batches/README.md": renderKrBatchIndex(),
+		"docs/batches/current-batch.md": renderCurrentBatchDoc(model),
 	};
 }
 
@@ -144,6 +170,116 @@ function renderGuardrails(model: CockpitModel): string {
 	].join("\n");
 }
 
+function renderKrBatchCockpit(model: CockpitModel): string {
+	const { progress } = model;
+	const safePercent = normalizePercent(progress.percentComplete);
+	const currentTask = progress.currentTask ?? "정해진 작업 없음";
+	const activePlanName = progress.activePlanName ?? "계획 없음";
+	const status = renderKoreanStatus(progress.status);
+
+	return [
+		"# Cockpit",
+		"",
+		`상태: **${status}**`,
+		"문서 성격: 비개발자용 현재 상황판",
+		"",
+		"> 이 문서는 지금 어디까지 왔는지만 짧게 보여줍니다.",
+		"> 자세한 작업 기록과 기술 판단은 `docs/batches/` 아래 문서에 둡니다.",
+		"",
+		"## 한눈에 보기",
+		"",
+		`현재 계획은 **${activePlanName}**이고, 지금 보는 작업은 **${currentTask}**입니다.`,
+		"",
+		"| 구분 | 진행률 |",
+		"|---|---|",
+		`| 전체 목표 | ${renderProgressBar(safePercent)} **${safePercent}%** |`,
+		`| 현재 배치 묶음 | ${renderProgressBar(safePercent)} **${safePercent}%** |`,
+		`| 이번 세션 | ${renderProgressBar(safePercent)} **${safePercent}%** |`,
+		"",
+		"```mermaid",
+		"flowchart LR",
+		`  O["전체 목표<br/>${safePercent}%"] --> B["현재 배치 묶음<br/>${safePercent}%"] --> S["이번 세션<br/>${safePercent}%"]`,
+		"  classDef active fill:#dbeafe,stroke:#2563eb,color:#1e3a8a",
+		"  classDef caution fill:#fef3c7,stroke:#f59e0b,color:#78350f",
+		"  class O,B active",
+		"  class S caution",
+		"```",
+		"",
+		"## 1. 전체 목표와 목표별 진행률",
+		"",
+		"| 목표 | 쉬운 설명 | 진행률 |",
+		"|---|---|---|",
+		`| 현재 계획 | 진행 중인 계획을 끝까지 검증 가능한 상태로 정리 | ${renderProgressBar(safePercent)} **${safePercent}%** |`,
+		"",
+		"## 2. 배치 구분과 배치별 진행률",
+		"",
+		"| 배치 | 지금의 의미 | 상태 | 진행률 | 자세한 문서 |",
+		"|---|---|---|---|---|",
+		`| Current Batch | ${currentTask} | **${status}** | ${renderProgressBar(safePercent)} **${safePercent}%** | \`docs/batches/current-batch.md\` |`,
+		"",
+		"## 3. 이번 세션에서 달성한 진행률",
+		"",
+		"| 이번 세션 | 진행률 |",
+		"|---|---|",
+		`| 완료한 일 | ${renderProgressBar(safePercent)} **${safePercent}%** |`,
+		`| 남은 일 | ${progress.remainingTasks}개 |`,
+		"",
+		"## 자세한 문서",
+		"",
+		"- `docs/batches/README.md`",
+		"- `docs/batches/current-batch.md`",
+		"",
+	].join("\n");
+}
+
+function renderKrBatchIndex(): string {
+	return [
+		"# Batch Documents",
+		"",
+		"This folder keeps details that are too long for the short cockpit status.",
+		"",
+		"## Documents",
+		"",
+		"- `docs/batches/current-batch.md`",
+		"",
+		"## Writing Contract",
+		"",
+		"- Keep the cockpit short.",
+		"- Put commands, logs, and technical decisions in batch documents.",
+		"- Link batch documents from `COCKPIT_KR.md`.",
+		"",
+	].join("\n");
+}
+
+function renderCurrentBatchDoc(model: CockpitModel): string {
+	const { progress } = model;
+	const safePercent = normalizePercent(progress.percentComplete);
+	const currentTask = progress.currentTask ?? "Current batch";
+	const warnings =
+		progress.warnings.length === 0 ? ["- none"] : listOrNone(progress.warnings);
+
+	return [
+		"# Current Batch",
+		"",
+		`Status: **${progress.status}**`,
+		`Progress: ${renderProgressBar(safePercent)} **${safePercent}%**`,
+		"",
+		"## Goal",
+		"",
+		`Complete and verify ${currentTask}.`,
+		"",
+		"## Checks",
+		"",
+		`- Completed tasks: ${progress.completedTasks}/${progress.totalTasks}`,
+		`- Remaining tasks: ${progress.remainingTasks}`,
+		"",
+		"## Notes",
+		"",
+		...warnings,
+		"",
+	].join("\n");
+}
+
 function listOrNone(values: readonly string[]): string[] {
 	return values.length === 0 ? ["- none"] : values.map((value) => `- ${value}`);
 }
@@ -154,6 +290,23 @@ function normalizePercent(percent: number): number {
 	}
 
 	return Math.min(100, Math.max(0, Math.round(percent)));
+}
+
+function renderKoreanStatus(status: string): string {
+	switch (status) {
+		case "not_started":
+			return "대기";
+		case "in_progress":
+			return "진행 중";
+		case "complete":
+			return "완료";
+		case "blocked":
+			return "막힘";
+		case "warning":
+			return "주의";
+		default:
+			return status;
+	}
 }
 
 function renderProgressBar(percent: number, barWidth = 20): string {
