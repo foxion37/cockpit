@@ -4,7 +4,7 @@ import { resolve } from "node:path";
 import { stdin as input, stderr, stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
-import { runCockpitHook } from "./hooks.js";
+import { CockpitHookStrictError, runCockpitHook } from "./hooks.js";
 import { COCKPIT_PROFILES, type CockpitProfile } from "./types.js";
 import { updateCockpit } from "./update.js";
 import { validateCockpit } from "./validate.js";
@@ -84,7 +84,19 @@ async function hookSubcommand(argv: readonly string[]): Promise<number> {
 	const raw = await readStdin();
 	const parsed = parseHookPayload(raw);
 	if (parsed === null) return 0;
-	stdout.write(await runCockpitHook(parsed));
+	try {
+		stdout.write(
+			await runCockpitHook(parsed, {
+				strict: isStrictEnabled(process.env["COCKPIT_STRICT"]),
+			}),
+		);
+	} catch (error) {
+		if (error instanceof CockpitHookStrictError) {
+			stdout.write(`${JSON.stringify(error.result, null, 2)}\n`);
+			return 1;
+		}
+		throw error;
+	}
 	return 0;
 }
 
@@ -129,6 +141,10 @@ function isCockpitProfile(value: string): value is CockpitProfile {
 
 function hasFlag(argv: readonly string[], flag: string): boolean {
 	return argv.includes(flag);
+}
+
+function isStrictEnabled(value: string | undefined): boolean {
+	return value === "1" || value === "true" || value === "yes";
 }
 
 async function readStdin(): Promise<string> {
