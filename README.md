@@ -33,21 +33,21 @@ Cockpit works best with careful planning. The more detailed the plan is, especia
 The easiest path is to ask your coding agent to install it for the current repository:
 
 ```text
-Install foxion37/cockpit in this repo and run the first cockpit update.
+Install @seongqkim/cockpit in this repo and run the first cockpit update.
 Use the Cockpit skill if it is available.
 ```
 
-You can also install it directly with npm from GitHub:
+You can also install it directly from npm:
 
 ```sh
-npm install -g https://github.com/foxion37/cockpit/archive/refs/heads/main.tar.gz
+npm install -g @seongqkim/cockpit
 cockpit update --repo-root "$PWD" --json
 ```
 
 Or keep it local to one project:
 
 ```sh
-npm install --save-dev https://github.com/foxion37/cockpit/archive/refs/heads/main.tar.gz
+npm install --save-dev @seongqkim/cockpit
 npx cockpit update --repo-root "$PWD" --json
 ```
 

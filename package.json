@@ -1,5 +1,5 @@
 {
-	"name": "@foxion37/cockpit",
+	"name": "@seongqkim/cockpit",
 	"version": "0.2.0",
 	"description": "Markdown cockpit for AI-agent work with concise status docs, Korean batch dashboards, validation gates, and strict hooks.",
 	"type": "module",
