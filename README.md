@@ -40,14 +40,14 @@ Use the Cockpit skill if it is available.
 You can also install it directly with npm from GitHub:
 
 ```sh
-npm install -g github:foxion37/cockpit
+npm install -g https://github.com/foxion37/cockpit/archive/refs/heads/main.tar.gz
 cockpit update --repo-root "$PWD" --json
 ```
 
 Or keep it local to one project:
 
 ```sh
-npm install --save-dev github:foxion37/cockpit
+npm install --save-dev https://github.com/foxion37/cockpit/archive/refs/heads/main.tar.gz
 npx cockpit update --repo-root "$PWD" --json
 ```
 
