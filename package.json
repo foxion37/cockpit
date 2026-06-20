@@ -3,7 +3,7 @@
 	"version": "0.2.0",
 	"description": "Markdown cockpit for AI-agent work with concise status docs, Korean batch dashboards, validation gates, and strict hooks.",
 	"type": "module",
-	"packageManager": "npm@11.12.1",
+	"packageManager": "npm@11.17.0",
 	"author": "SeongQ Kim <foxion37@gmail.com>",
 	"license": "MIT",
 	"repository": {
@@ -46,10 +46,10 @@
 		"prepare": "npm run build"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.4.16",
-		"@types/node": "^25.7.0",
+		"@biomejs/biome": "^2.5.0",
+		"@types/node": "^26.0.0",
 		"typescript": "^6.0.3",
-		"vitest": "^4.1.5"
+		"vitest": "^4.1.9"
 	},
 	"engines": {
 		"node": ">=20.0.0"
