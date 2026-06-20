@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/status-public%20package-14b8a6" alt="public package">
 </p>
 
-Cockpit은 긴 Codex 작업을 위한 dot-image 감성의 작은 Markdown 조종석입니다. 계획, 진행률, 세션 상태, 구조 이해 정보를 모아서 `.cockpit/` 아래 네 개 파일로 정리합니다.
+Cockpit은 vibe-coder를 위한 Markdown 조종석입니다. 계획, 진행률, 세션 상태, 구조 이해 정보를 모아서 `.cockpit/` 아래 네 개 파일로 정리합니다.
 
 핵심은 단순함입니다. 파일을 많이 만들지 않고, 매번 같은 구조로 갱신하며, 사람이 보는 요약과 에이전트가 참고할 가드레일을 분리합니다.
 
